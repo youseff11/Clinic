@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}ملف المريض - {{ patient.name }}{% endblock %}
+{% block page_title %}ملف المريض{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- بيانات المريض -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-id-card me-2"></i>البيانات الشخصية</span>
+        <span class="badge bg-danger fs-6">#{{ patient.patient_number }}</span>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled mb-0">
+          <li class="py-2 border-bottom"><i class="fas fa-user me-2 text-muted"></i><strong>الاسم:</strong> {{ patient.name }}</li>
+          <li class="py-2 border-bottom"><i class="fas fa-venus-mars me-2 text-muted"></i><strong>الجنس:</strong> {{ patient.get_gender_display }}</li>
+          <li class="py-2 border-bottom"><i class="fas fa-birthday-cake me-2 text-muted"></i><strong>تاريخ الميلاد:</strong> {{ patient.birth_date }}</li>
+          <li class="py-2 border-bottom"><i class="fas fa-phone me-2 text-muted"></i><strong>الهاتف:</strong> {{ patient.phone|default:"—" }}</li>
+          <li class="py-2 border-bottom"><i class="fas fa-id-card me-2 text-muted"></i><strong>الرقم القومي:</strong> {{ patient.national_id|default:"—" }}</li>
+          <li class="py-2"><i class="fas fa-map-marker-alt me-2 text-muted"></i><strong>العنوان:</strong> {{ patient.address|default:"—" }}</li>
+        </ul>
+      </div>
+      <div class="card-footer">
+        <a href="{% url 'secretary_appointment_add' %}?patient={{ patient.pk }}" class="btn btn-cu w-100">
+          <i class="fas fa-calendar-plus me-2"></i>حجز موعد جديد
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- سجل المواعيد -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-calendar-alt me-2"></i>سجل المواعيد ({{ appointments.count }})</span>
+        <a href="{% url 'secretary_appointment_add' %}?patient={{ patient.pk }}" class="btn btn-sm btn-light">
+          <i class="fas fa-plus me-1"></i>موعد جديد
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if appointments %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>التاريخ</th>
+                <th>الوقت</th>
+                <th>التخصص</th>
+                <th>النوع</th>
+                <th>الطبيب</th>
+                <th>الحالة</th>
+                <th>طباعة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for appt in appointments %}
+              <tr>
+                <td>{{ appt.appointment_date }}</td>
+                <td>{{ appt.appointment_time|time:"h:i A" }}</td>
+                <td>{{ appt.specialty.name }}</td>
+                <td><span class="badge bg-secondary">{{ appt.get_appointment_type_display }}</span></td>
+                <td>{{ appt.doctor|default:"—" }}</td>
+                <td><span class="badge badge-{{ appt.status }}">{{ appt.get_status_display }}</span></td>
+                <td>
+                  <a href="{% url 'secretary_print_slip' appt.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-print"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-calendar-times fa-3x mb-3 opacity-25"></i>
+          <p>لا توجد مواعيد لهذا المريض</p>
+          <a href="{% url 'secretary_appointment_add' %}?patient={{ patient.pk }}" class="btn btn-cu">
+            <i class="fas fa-plus me-1"></i>حجز موعد
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <a href="{% url 'secretary_patients' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-right me-1"></i>العودة لسجل المرضى
+  </a>
+</div>
+{% endblock %}

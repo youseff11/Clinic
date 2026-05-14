@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .form-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); margin-bottom: 20px; }
+  .form-section-title { font-weight: 700; color: var(--cu-dark); border-bottom: 2px solid var(--cu-gold); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.1rem; }
+  
+  /* تنسيقات Select2 */
+  .select2-container .select2-selection--single {
+    height: 38px;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 36px;
+    color: #495057;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 36px;
+  }
+  .select2-container[dir="rtl"] .select2-selection--single .select2-selection__rendered {
+    padding-right: 12px;
+    padding-left: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if active_prescriptions %}
+<div class="alert alert-warning border-start border-4 border-warning shadow-sm mb-4" role="alert">
+  <div class="d-flex align-items-start gap-3">
+    <i class="fas fa-exclamation-triangle fa-lg text-warning mt-1"></i>
+    <div>
+      <h6 class="fw-bold mb-1">تنبيه: هذا المريض لديه خطة جلسات نشطة!</h6>
+      <p class="mb-2 small">تأكدي من اختيار <strong>"جلسة علاجية"</strong> إذا كان هذا الموعد لتكملة العلاج.</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if patient_obj %}
+<div class="alert alert-info border-0 shadow-sm mb-4">
+  <i class="fas fa-user-circle me-2"></i>
+  حجز موعد للمريض: <strong>{{ patient_obj.name }}</strong> (رقم: #{{ patient_obj.patient_number }})
+</div>
+{% endif %}
+
+<form method="post" id="appointmentForm">
+  {% csrf_token %}
+
+  <div class="form-section">
+    <div class="form-section-title"><i class="fas fa-calendar-plus me-2 text-danger"></i>تفاصيل الموعد</div>
+    <div class="row g-3">
+      {% for field in form %}
+      <div class="col-md-6 mb-2">
+        {% if patient_obj and field.name == 'patient' %}
+          <div class="d-none">{{ field }}</div>
+        {% else %}
+          <label class="form-label fw-semibold">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors }}</div>{% endif %}
+          
+          {% if field.name == 'appointment_type' %}
+          <div class="form-text text-muted">
+            <i class="fas fa-info-circle me-1"></i>
+            <strong>كشف جديد:</strong> لفتح ملف طبي. 
+            <strong>جلسة علاجية:</strong> تظهر فقط إذا كان للمريض كشف سابق في نفس التخصص.
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-cu px-5" style="background-color: #0d6efd; color: white;">
+      <i class="fas fa-calendar-check me-2"></i>تأكيد الحجز
+    </button>
+    <a href="{% url 'secretary_appointments' %}" class="btn btn-outline-secondary">إلغاء</a>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // 1. تفعيل ميزة البحث بالـ AJAX لتتحمل البيانات الضخمة
+    $('select[name="patient"]').select2({
+        dir: "rtl",
+        placeholder: "ابحث بالاسم، الرقم القومي، أو رقم المريض...",
+        allowClear: true,
+        minimumInputLength: 0, 
+        language: {
+            inputTooShort: function() { return "اكتب حرف أو رقم للبحث..."; },
+            noResults: function () { return "لم يتم العثور على مريض مطابق"; },
+            searching: function() { return "جاري البحث..."; }
+        },
+        ajax: {
+            // توجيه البحث للمسار الصحيح بناءً على الرابط الحالي (أدمن ولا سكرتيرة)
+            url: "{% if 'admin' in request.path %}{% url 'search_patients_ajax' %}{% else %}{% url 'secretary_search_patients_ajax' %}{% endif %}",
+            dataType: 'json',
+            delay: 250, // تأخير ربع ثانية لتخفيف الضغط على السيرفر
+            data: function (params) {
+                return {
+                    q: params.term // الكلمة اللي بيكتبها المستخدم
+                };
+            },
+            processResults: function (data) {
+                // تحويل الداتا اللي راجعة لشكل يقدر Select2 يعرضه
+                return {
+                    results: data.patients.map(function(p) {
+                        return {
+                            id: p.id,
+                            text: p.name + " (#" + p.number + ") | " + p.national_id
+                        };
+                    })
+                };
+            },
+            cache: true
+        }
+    });
+
+    // 2. ربط Select2 بالأحداث عشان دالة فحص الجلسات تشتغل بمجرد اختيار المريض
+    $('select[name="patient"]').on('select2:select select2:clear', function (e) {
+        this.dispatchEvent(new Event('change'));
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const patientField = document.querySelector('[name="patient"]');
+  const specialtySelect = document.querySelector('[name="specialty"]');
+  const doctorSelect = document.querySelector('[name="doctor"]');
+  const typeField = document.querySelector('[name="appointment_type"]');
+
+  let sessionOptionClone = null;
+
+  // إعداد حقل نوع الموعد (إخفاء الاستشارة ونسخ الجلسة)
+  if (typeField) {
+    const followupOption = typeField.querySelector('option[value="followup"]');
+    if (followupOption) followupOption.remove(); // إزالة "استشارة" نهائياً
+
+    const sessionOption = typeField.querySelector('option[value="session"]');
+    if (sessionOption) {
+      sessionOptionClone = sessionOption.cloneNode(true);
+    }
+  }
+
+  // دالة لإخفاء الجلسة العلاجية
+  function removeSessionOption() {
+    if (!typeField) return;
+    const currentSessionOpt = typeField.querySelector('option[value="session"]');
+    if (currentSessionOpt) {
+      if (typeField.value === 'session') typeField.value = 'new';
+      currentSessionOpt.remove();
+    }
+  }
+
+  // دالة لإظهار الجلسة العلاجية
+  function addSessionOption() {
+    if (!typeField || !sessionOptionClone) return;
+    const currentSessionOpt = typeField.querySelector('option[value="session"]');
+    if (!currentSessionOpt) {
+      typeField.appendChild(sessionOptionClone.cloneNode(true));
+    }
+  }
+
+  // دالة التحقق من وجود كشف سابق في التخصص
+  function checkPreviousRecord() {
+    if (!sessionOptionClone || !typeField) return;
+
+    const patientId = patientField ? patientField.value : "{{ patient_obj.pk|default:'' }}";
+    const specialtyId = specialtySelect ? specialtySelect.value : "";
+
+    if (!patientId || !specialtyId) {
+      removeSessionOption();
+      return;
+    }
+
+    fetch(`/ajax/check-patient-record/?patient_id=${patientId}&specialty_id=${specialtyId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.has_record) {
+          addSessionOption();
+        } else {
+          removeSessionOption();
+        }
+      })
+      .catch(err => console.error('Error checking record:', err));
+  }
+
+  // تحديث قائمة الأطباء + فحص الكشوفات السابقة عند تغيير التخصص
+  if (specialtySelect) {
+    specialtySelect.addEventListener('change', function() {
+      // فحص الجلسة السابقة
+      checkPreviousRecord();
+
+      // تحميل الأطباء
+      if (doctorSelect) {
+        fetch(`{% url 'ajax_load_doctors' %}?specialty_id=${this.value}`)
+          .then(r => r.json())
+          .then(data => {
+            doctorSelect.innerHTML = '<option value="">--- اختر الطبيب (اختياري) ---</option>';
+            data.forEach(d => {
+              doctorSelect.innerHTML += `<option value="${d.id}">${d.name}</option>`;
+            });
+          });
+      }
+    });
+  }
+
+  // الفحص عند التغيير اليدوي للقائمة (للاحتياط)
+  if (patientField && patientField.tagName.toLowerCase() === 'select') {
+    patientField.addEventListener('change', checkPreviousRecord);
+  }
+
+  // الفحص الأولي عند تحميل الصفحة
+  checkPreviousRecord();
+});
+</script>
+{% endblock %}

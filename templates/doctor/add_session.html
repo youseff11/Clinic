@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}تسجيل جلسة علاجية{% endblock %}
+{% block page_title %}تسجيل جلسة علاجية - {{ prescription.medical_record.patient.name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mb-5">
+  <div class="col-lg-8">
+    
+    <!-- صندوق معلومات الخطة الحالية -->
+    <div class="alert alert-info border-start border-4 border-info shadow-sm mb-4" style="background-color: #e0f2fe; color: #0369a1;">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+        <div class="mb-2 mb-md-0">
+          <h6 class="fw-bold mb-1"><i class="fas fa-user-injured me-2"></i>{{ prescription.medical_record.patient.name }} (#{{ prescription.medical_record.patient.patient_number }})</h6>
+          <div class="small">
+            <strong>نوع الإصابة:</strong> {{ prescription.injury_type }}
+          </div>
+        </div>
+        <div class="text-md-end">
+          <span class="badge bg-primary fs-6 mb-1 shadow-sm">الجلسة رقم: {{ prescription.completed_sessions|add:"1" }}</span>
+          <div class="small fw-bold">
+            إجمالي الجلسات: {{ prescription.total_sessions }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- كارت نموذج تسجيل الجلسة -->
+    <div class="card shadow-sm border-0">
+      <div class="card-header text-white d-flex align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+        <i class="fas fa-notes-medical fa-lg me-2"></i>
+        <h6 class="mb-0 fw-bold fs-5">إضافة ملاحظات الجلسة</h6>
+      </div>
+      
+      <div class="card-body p-4 bg-white">
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="row g-3">
+            {% for field in form %}
+            <div class="col-12 mb-2">
+              <label class="form-label fw-bold text-dark mb-2">
+                <i class="fas fa-pen-alt text-muted me-1"></i>{{ field.label }} 
+                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              
+              {{ field }}
+              
+              {% if field.help_text %}
+                <div class="form-text text-muted small mt-1">{{ field.help_text }}</div>
+              {% endif %}
+              
+              {% if field.errors %}
+                <div class="text-danger small mt-1 fw-bold">
+                  <i class="fas fa-exclamation-circle me-1"></i>{{ field.errors|striptags }}
+                </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          
+          <hr class="my-4 text-muted">
+          
+          <!-- أزرار الحفظ والإلغاء -->
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="javascript:history.back()" class="btn btn-light border px-4 shadow-sm">
+              <i class="fas fa-times me-2"></i>إلغاء
+            </a>
+            <button type="submit" class="btn px-4 shadow-sm" style="background:#8B0000; color:white;">
+              <i class="fas fa-save me-2"></i>حفظ تفاصيل الجلسة
+            </button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- إضافة سكريبت تحويل الملاحظات إلى نقاط (Bullet Points) -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // تحديد حقل الملاحظات (نفترض أن اسمه في الـ Form هو notes)
+    const notesField = document.querySelector('textarea[name="notes"]');
+    
+    if (notesField) {
+        // عند الضغط داخل الحقل لأول مرة، إذا كان فارغاً نضع أول نقطة
+        notesField.addEventListener('focus', function() {
+            if (this.value.trim() === '') {
+                this.value = '• ';
+            }
+        });
+
+        // مراقبة الضغط على لوحة المفاتيح
+        notesField.addEventListener('keydown', function(e) {
+            // إذا تم الضغط على زر Enter
+            if (e.key === 'Enter') {
+                e.preventDefault(); // منع النزول بسطر عادي
+                
+                // جلب موقع المؤشر الحالي
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const value = this.value;
+                
+                // إضافة سطر جديد يليه رمز النقطة ومسافة
+                const insertText = '\n• ';
+                
+                // دمج النص الجديد داخل الحقل
+                this.value = value.substring(0, start) + insertText + value.substring(end);
+                
+                // تحريك المؤشر بعد النقطة الجديدة
+                this.selectionStart = this.selectionEnd = start + insertText.length;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

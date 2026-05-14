@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}إدارة المرضى{% endblock %}
+{% block page_title %}إدارة المرضى{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- تم تعديل حقل البحث ليستخدم ID وتوسيع المساحة -->
+  <form class="d-flex gap-2" method="get" id="searchForm">
+    <input type="text" id="smartSearch" name="q" value="{{ query }}" class="form-control" placeholder="بحث بالاسم، الرقم القومي، أو رقم الهاتف..." style="width:350px;">
+    <button type="submit" class="btn btn-cu" style="background:#8B0000;color:white;">بحث</button>
+    {% if query %}<a href="{% url 'admin_patients' %}" class="btn btn-secondary">مسح</a>{% endif %}
+  </form>
+  
+  <div class="d-flex gap-2">
+    <!-- زرار فتح نافذة الـ SMS -->
+    <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#smsModal">
+      <i class="fas fa-sms me-1"></i> إرسال رسالة للكل
+    </button>
+    <a href="{% url 'admin_patient_add' %}" class="btn shadow-sm" style="background:#8B0000;color:white;">
+      <i class="fas fa-plus me-1"></i> إضافة مريض وحجز موعد
+    </a>
+  </div>
+</div>
+
+<!-- النافذة المنبثقة (Modal) لإرسال الـ SMS -->
+<div class="modal fade" id="smsModal" tabindex="-1" aria-labelledby="smsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <form method="post" action="{% url 'send_bulk_sms' %}">
+        {% csrf_token %}
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+          <h5 class="modal-title fw-bold" id="smsModalLabel"><i class="fas fa-comment-dots me-2"></i>إرسال رسالة نصية (SMS)</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="alert alert-info small border-0 shadow-sm rounded">
+            <i class="fas fa-info-circle me-1"></i> سيتم إرسال هذه الرسالة إلى جميع المرضى المسجل لهم رقم هاتف في النظام.
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-muted">نص الرسالة</label>
+            <textarea name="sms_message" class="form-control" rows="5" required placeholder="اكتب محتوى الرسالة هنا... (مثال: نعتذر عن العمل غداً، أو يوجد خصم على الكشوفات...)" style="resize: none;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer bg-light border-0">
+          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+          <button type="submit" class="btn btn-success px-4"><i class="fas fa-paper-plane me-2"></i>إرسال الآن</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-header text-white" style="background:#8B0000;">
+    <i class="fas fa-users me-2"></i>قائمة المرضى (<span id="patientsCount">{{ patients.count }}</span>)
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light text-muted">
+          <tr>
+            <th>رقم المريض</th>
+            <th>الاسم</th>
+            <th>الرقم القومي</th>
+            <th>الجنس</th>
+            <th>تاريخ الميلاد</th>
+            <th>الهاتف</th>
+            <th>تاريخ التسجيل</th>
+            <th>الإجراءات</th>
+          </tr>
+        </thead>
+        <!-- تم إضافة ID للـ tbody للتحكم به عبر الجافاسكريبت -->
+        <tbody id="patientsTableBody">
+          {% for patient in patients %}
+          <tr>
+            <td><span class="badge bg-dark fs-6">#{{ patient.patient_number }}</span></td>
+            <td><strong>{{ patient.name }}</strong></td>
+            <td>{{ patient.national_id|default:"-" }}</td>
+            <td>{{ patient.get_gender_display }}</td>
+            <td>{{ patient.birth_date|date:"Y/m/d" }}</td>
+            <td>{{ patient.phone|default:"-" }}</td>
+            <td>{{ patient.created_at|date:"Y/m/d" }}</td>
+            <td>
+              <a href="{% url 'admin_patient_detail' patient.pk %}" class="btn btn-sm btn-outline-primary shadow-sm"><i class="fas fa-eye"></i></a>
+              <a href="{% url 'admin_patient_edit' patient.pk %}" class="btn btn-sm btn-outline-warning shadow-sm"><i class="fas fa-edit"></i></a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="text-center text-muted py-5"><i class="fas fa-users-slash fs-3 d-block mb-3 text-light"></i>لا يوجد مرضى</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById('smartSearch');
+    const tableBody = document.getElementById('patientsTableBody');
+    const searchForm = document.getElementById('searchForm');
+    const patientsCount = document.getElementById('patientsCount');
+
+    // منع إعادة تحميل الصفحة عند الضغط على Enter إذا كان هناك نص في البحث
+    searchForm.addEventListener('submit', function(e) {
+        if (searchInput.value.trim() !== '') {
+            e.preventDefault();
+        }
+    });
+
+    searchInput.addEventListener('keyup', function() {
+        let query = this.value.trim();
+        
+        fetch(`/admin-panel/patients/search-ajax/?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
+            tableBody.innerHTML = ''; // مسح الجدول الحالي
+            
+            if(data.patients.length > 0) {
+                patientsCount.textContent = data.patients.length; // تحديث العداد
+                
+                data.patients.forEach(p => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td><span class="badge bg-dark fs-6">#${p.number}</span></td>
+                            <td><strong>${p.name}</strong></td>
+                            <td>${p.national_id}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>${p.phone}</td>
+                            <td>-</td>
+                            <td>
+                                <a href="/admin-panel/patients/${p.id}/" class="btn btn-sm btn-outline-primary shadow-sm"><i class="fas fa-eye"></i></a>
+                                <a href="/admin-panel/patients/${p.id}/edit/" class="btn btn-sm btn-outline-warning shadow-sm"><i class="fas fa-edit"></i></a>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } else {
+                patientsCount.textContent = '0';
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-5"><i class="fas fa-search mb-2 d-block fs-3 text-light"></i>لا توجد نتائج مطابقة للبحث</td></tr>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching search results:', error);
+        });
+    });
+});
+</script>
+{% endblock %}

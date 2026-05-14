@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% block title %}لوحة السكرتيرة{% endblock %}
+{% block page_title %}لوحة السكرتيرة 🗂️{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num">{{ stats.total_patients }}</div>
+          <div class="stat-label">إجمالي المرضى</div>
+        </div>
+        <i class="fas fa-users fa-2x text-danger opacity-25"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="border-right-color: #0d6efd;">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num" style="color:#0d6efd;">{{ stats.today_appointments }}</div>
+          <div class="stat-label">مواعيد اليوم</div>
+        </div>
+        <i class="fas fa-calendar-day fa-2x text-primary opacity-25"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="border-right-color: #ffc107;">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num" style="color:#ffc107;">{{ stats.pending }}</div>
+          <div class="stat-label">قيد الانتظار</div>
+        </div>
+        <i class="fas fa-clock fa-2x text-warning opacity-25"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="border-right-color: #198754;">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num" style="color:#198754;">{{ stats.confirmed }}</div>
+          <div class="stat-label">مواعيد مؤكدة</div>
+        </div>
+        <i class="fas fa-check-circle fa-2x text-success opacity-25"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-calendar-day me-2"></i>مواعيد اليوم</span>
+        <a href="{% url 'secretary_appointment_add' %}" class="btn btn-sm btn-light">
+          <i class="fas fa-plus me-1"></i>حجز موعد
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if today_appointments %}
+        <div class="table-responsive">
+          <table class="table table-hover mb-0 align-middle text-center">
+            <thead class="table-light">
+              <tr>
+                <th>الوقت</th>
+                <th>المريض</th>
+                <th>الطبيب المعالج</th>
+                <th>النوع / تم الحجز بواسطة</th> <th>تم الكشف؟</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for appt in today_appointments %}
+              <tr>
+                <td><span class="fw-bold text-primary"><i class="fas fa-clock text-muted me-1"></i>{{ appt.appointment_time|time:"h:i A" }}</span></td>
+                
+                <td>
+                  <a href="{% url 'secretary_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold">
+                    {{ appt.patient.name }}
+                  </a>
+                  <div class="text-muted small">#{{ appt.patient.patient_number }}</div>
+                </td>
+                
+                <td>
+                  <div class="fw-bold text-primary">{{ appt.doctor|default:"-" }}</div>
+                  <div class="small text-muted">{{ appt.specialty.name|default:"-" }}</div>
+                </td>
+                
+                <td>
+                  <div class="mb-1">
+                    <span class="badge bg-secondary">{{ appt.get_appointment_type_display }}</span>
+                  </div>
+                  <div class="small text-muted" style="font-size: 0.75rem;">
+                    <i class="fas fa-user-edit me-1"></i>
+                    {% if appt.created_by %}
+                      {{ appt.created_by.get_full_name|default:appt.created_by.username }}
+                    {% else %}
+                      غير محدد
+                    {% endif %}
+                  </div>
+                </td>
+                
+                <td>
+                  {% if appt.status == 'completed' %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fas fa-check me-1"></i>نعم</span>
+                  {% elif appt.status == 'cancelled' %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1"><i class="fas fa-times me-1"></i>ملغي</span>
+                  {% elif appt.status == 'confirmed' %}
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"><i class="fas fa-calendar-check me-1"></i>مؤكد</span>
+                  {% else %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1"><i class="fas fa-hourglass-half me-1"></i>انتظار</span>
+                  {% endif %}
+                </td>
+                
+                <td>
+                  <div class="d-flex justify-content-center gap-1">
+                    <form method="post" action="{% url 'secretary_appointment_update_status' appt.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <select name="status" class="form-select form-select-sm" style="width:110px;" onchange="this.form.submit()">
+                        <option value="pending" {% if appt.status == 'pending' %}selected{% endif %}>انتظار</option>
+                        <option value="confirmed" {% if appt.status == 'confirmed' %}selected{% endif %}>مؤكد</option>
+                        <option value="completed" {% if appt.status == 'completed' %}selected{% endif %}>مكتمل</option>
+                        <option value="cancelled" {% if appt.status == 'cancelled' %}selected{% endif %}>ملغي</option>
+                      </select>
+                    </form>
+                    <a href="{% url 'secretary_print_slip' appt.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="طباعة">
+                      <i class="fas fa-print"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-calendar-times fa-3x mb-3 opacity-25"></i>
+          <p>لا توجد مواعيد اليوم</p>
+          <a href="{% url 'secretary_appointment_add' %}" class="btn btn-cu">
+            <i class="fas fa-plus me-1"></i>حجز موعد الآن
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-user-plus me-2"></i>آخر المرضى</span>
+        <a href="{% url 'secretary_patient_add' %}" class="btn btn-sm btn-light">
+          <i class="fas fa-plus me-1"></i>إضافة
+        </a>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          {% for patient in recent_patients %}
+          <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+            <div>
+              <div class="fw-bold">{{ patient.name }}</div>
+              <small class="text-muted">#{{ patient.patient_number }} | {{ patient.phone|default:"-" }}</small>
+            </div>
+            <a href="{% url 'secretary_patient_detail' patient.pk %}" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-eye"></i>
+            </a>
+          </li>
+          {% empty %}
+          <li class="list-group-item text-center text-muted py-4">لا يوجد مرضى بعد</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header"><i class="fas fa-bolt me-2"></i>إجراءات سريعة</div>
+      <div class="card-body d-grid gap-2">
+        <a href="{% url 'secretary_patient_add' %}" class="btn btn-cu text-white" style="background-color: #0d6efd;">
+          <i class="fas fa-user-plus me-2"></i>تسجيل مريض جديد + موعد
+        </a>
+        <a href="{% url 'secretary_appointment_add' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-calendar-plus me-2"></i>حجز موعد لمريض موجود
+        </a>
+        <a href="{% url 'secretary_patients' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-search me-2"></i>البحث في المرضى
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

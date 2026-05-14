@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}إضافة خطة جلسات{% endblock %}
+{% block page_title %}إضافة خطة جلسات علاجية{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mb-5">
+  <div class="col-lg-8">
+    
+    <!-- صندوق معلومات المريض والسجل -->
+    <div class="alert alert-info border-start border-4 border-info shadow-sm mb-4" style="background-color: #e0f2fe; color: #0369a1;">
+      <div class="d-flex flex-column gap-1 text-center text-md-end">
+        <div><strong>المريض:</strong> {{ record.patient.name }} (#{{ record.patient.patient_number }})</div>
+        <div><strong>التشخيص الطبي:</strong> {{ record.diagnosis }}</div>
+        <div>
+          <strong>تاريخ السجل:</strong> {{ record.visit_date|date:"Y/m/d" }} 
+          <!-- التعديل هنا: إضافة وقت إنشاء السجل -->
+          <span class="badge bg-info text-dark ms-1"><i class="fas fa-clock me-1"></i>الساعة {{ record.created_at|time:"h:i A" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- كارت الفورم -->
+    <div class="card shadow-sm border-0">
+      <div class="card-header text-white d-flex align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+        <i class="fas fa-clipboard-list fa-lg me-2"></i>
+        <h6 class="mb-0 fw-bold fs-5">إعداد خطة الجلسات</h6>
+      </div>
+      
+      <div class="card-body p-4 bg-white">
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="row g-3">
+            {% for field in form %}
+            <div class="col-12 mb-2">
+              <label class="form-label fw-bold text-dark mb-1">
+                {{ field.label }} 
+                {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+              </label>
+              
+              {{ field }}
+              
+              {% if field.help_text %}
+                <div class="form-text text-muted small mt-1">{{ field.help_text }}</div>
+              {% endif %}
+              
+              {% if field.errors %}
+                <div class="text-danger small mt-1 fw-bold">
+                  <i class="fas fa-exclamation-circle me-1"></i>{{ field.errors|striptags }}
+                </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          
+          <hr class="my-4 text-muted">
+          
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{% url 'doctor_patient_detail' record.patient.pk %}" class="btn btn-light border px-4 shadow-sm">
+              <i class="fas fa-times me-2"></i>إلغاء
+            </a>
+            <button type="submit" class="btn px-4 shadow-sm" style="background:#8B0000; color:white;">
+              <i class="fas fa-save me-2"></i>حفظ الخطة
+            </button>
+          </div>
+          
+        </form>
+      </div>
+    </div>
+    
+  </div>
+</div>
+{% endblock %}

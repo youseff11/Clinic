@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}سجل الجلسات - عيادة جامعة القاهرة{% endblock %}
+
+{% block page_title %}الجلسات التي قمت بها{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 mb-4">
+    <!-- تعديل لون الهيدر ليكون غامق ومتناسق مع باقي النظام -->
+    <div class="card-header text-white d-flex align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+        <i class="fas fa-list-check me-2 ms-2"></i> 
+        <h6 class="mb-0 fw-bold">سجل الجلسات العلاجية المنفذة</h6>
+    </div>
+    
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+            <table class="table table-hover table-striped align-middle mb-0 text-center">
+                <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                    <tr>
+                        <th>رقم الجلسة</th>
+                        <th>التاريخ والوقت</th>
+                        <th>اسم المريض</th>
+                        <th>نوع الإصابة</th>
+                        <th>ملاحظات الجلسة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in sessions %}
+                    <tr>
+                        <!-- إظهار رقم الجلسة بشكل أنيق -->
+                        <td>
+                            <span class="badge bg-dark fs-6 shadow-sm">#{{ forloop.counter }}</span>
+                        </td>
+                        
+                        <td>
+                            <div class="fw-bold">{{ session.session_date|date:"Y-m-d" }}</div>
+                            <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ session.session_date|time:"h:i A" }}</small>
+                        </td>
+                        
+                        <td>
+                            <a href="{% url 'doctor_patient_detail' session.prescription.medical_record.patient.pk %}" class="text-decoration-none text-dark fw-bold">
+                                {{ session.prescription.medical_record.patient.name }}
+                            </a>
+                        </td>
+                        
+                        <td>
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">
+                                {{ session.prescription.injury_type }}
+                            </span>
+                        </td>
+                        
+                        <!-- إظهار الملاحظات بالكامل مع الحفاظ على المسافات والأسطر -->
+                        <td class="text-start" style="max-width: 350px;">
+                            {% if session.notes %}
+                                <div class="text-wrap" style="line-height: 1.6;">
+                                    {{ session.notes|linebreaksbr }}
+                                </div>
+                            {% else %}
+                                <span class="text-muted"><i class="fas fa-comment-slash me-1"></i>لا توجد ملاحظات</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fas fa-folder-open fs-1 text-muted mb-3 d-block opacity-50"></i>
+                            <h6 class="text-muted">لم تقم بإجراء أي جلسات حتى الآن</h6>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

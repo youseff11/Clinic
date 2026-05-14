@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-header text-white" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+        <i class="fas fa-user-md me-2"></i>{{ title }}
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+          
+          <!-- قسم بيانات حساب الدخول (u_form) -->
+          <h5 class="mb-3 border-bottom pb-2" style="color:#8B0000;">
+            <i class="fas fa-user-lock me-2"></i>بيانات حساب الدخول
+          </h5>
+          <div class="row bg-light p-3 rounded border mb-4">
+            <div class="col-12 mb-2">
+              <small class="text-muted"><i class="fas fa-info-circle me-1"></i>هذه البيانات سيستخدمها الطبيب لتسجيل الدخول للنظام.</small>
+            </div>
+            {% for field in u_form %}
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- قسم البيانات المهنية للطبيب (d_form) -->
+          <h5 class="mb-3 border-bottom pb-2" style="color:#8B0000;">
+            <i class="fas fa-stethoscope me-2"></i>البيانات المهنية والتواصل
+          </h5>
+          <div class="row">
+            {% for field in d_form %}
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-bold text-muted">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors }}</div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex gap-2 mt-4 pt-3 border-top">
+            <button type="submit" class="btn px-4 shadow-sm" style="background:#8B0000; color:white;">
+              <i class="fas fa-save me-2"></i>حفظ بيانات الطبيب
+            </button>
+            <a href="{% url 'admin_doctors' %}" class="btn btn-secondary px-4">إلغاء</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

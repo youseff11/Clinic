@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}تذكرة انتظار - {{ appointment.patient.name }}{% endblock %}
+
+{% block page_title %}طباعة تذكرة الانتظار{% endblock %}
+
+{% block content %}
+<style>
+    /* إعدادات الشاشة (لعرض الريسيت داخل الداشبورد بشكل مرتب) */
+    .ticket-container {
+        width: 80mm;
+        background: white;
+        padding: 15px;
+        color: #000;
+        /* إضافة المربع (الإطار) حول الريسيت */
+        border: 2px solid #000; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin: 0 auto; /* لتوسيط الريسيت في الشاشة */
+        border-radius: 8px; /* تدوير الحواف بشكل أنيق */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .text-center { text-align: center; }
+    .fw-bold { font-weight: bold; }
+    .border-bottom { 
+        border-bottom: 2px dashed #000; 
+        padding-bottom: 10px; 
+        margin-bottom: 10px; 
+    }
+    .row-data {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+    .queue-number {
+        font-size: 45px;
+        font-weight: 900;
+        margin: 5px 0;
+        line-height: 1;
+    }
+    
+    /* تنسيق أزرار التحكم في الشاشة */
+    .controls {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .btn-custom {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        font-weight: bold;
+    }
+    .btn-print { background-color: #28a745; color: white; }
+    .btn-back { background-color: #8B0000; color: white; }
+
+    /* ======================================================= */
+    /* إعدادات الطباعة الفعلية (لجعلها بحجم الريسيت فقط) */
+    /* ======================================================= */
+    @media print {
+        @page {
+            /* إجبار الطابعة (حتى الـ PDF) على مقاس 8 سم عرض */
+            size: 80mm 140mm; 
+            margin: 0;
+        }
+        
+        /* 1. إخفاء كل شيء في الموقع (الـ Sidebar, Topbar, الخلفية) */
+        body * {
+            visibility: hidden;
+            background: #fff;
+        }
+        
+        /* 2. إظهار منطقة الريسيت فقط ومحتوياتها */
+        #print-area, #print-area * {
+            visibility: visible;
+        }
+        
+        /* 3. سحب الريسيت لأقصى الزاوية العلوية للورقة مع الحفاظ على المربع */
+        #print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 80mm !important;
+            padding: 5mm !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: 2px solid #000 !important; /* تأكيد ظهور الإطار في الطباعة */
+            border-radius: 8px !important;
+        }
+        
+        /* إخفاء الأزرار أثناء الطباعة */
+        .no-print { display: none !important; }
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <!-- أضفنا ID اسمه print-area عشان نمسكه في الطباعة -->
+        <div id="print-area" class="ticket-container">
+            <!-- ترويسة العيادة -->
+            <div class="text-center border-bottom">
+                <!-- تم إزالة الفلتر الأبيض والأسود ليظهر اللوجو بالألوان -->
+                <img src="/media/2.png" alt="Logo" style="width: 50px; height: 50px; margin-bottom: 5px;">
+                <h4 style="margin: 0; font-size: 16px;">كلية العلاج الطبيعي</h4>
+                <div style="font-size: 12px; margin-top: 2px;">جامعة القاهرة - عيادات خارجية</div>
+            </div>
+
+            <!-- رقم الانتظار -->
+            <div class="text-center border-bottom">
+                <div style="font-size: 14px; margin-bottom: 5px;">تذكرة انتظار</div>
+                <div class="queue-number">#{{ appointment.patient.patient_number }}</div>
+                <div style="font-size: 16px; font-weight: bold;">
+                    {{ appointment.get_appointment_type_display }}
+                </div>
+            </div>
+
+            <!-- بيانات الموعد -->
+            <div class="border-bottom">
+                <div class="row-data">
+                    <span>الاسم:</span>
+                    <span class="fw-bold">{{ appointment.patient.name|truncatechars:20 }}</span>
+                </div>
+                <div class="row-data">
+                    <span>القسم:</span>
+                    <span class="fw-bold">{{ appointment.specialty.name }}</span>
+                </div>
+                <div class="row-data">
+                    <span>التاريخ:</span>
+                    <span>{{ appointment.appointment_date|date:"Y-m-d" }}</span>
+                </div>
+                <div class="row-data">
+                    <span>الوقت:</span>
+                    <span>{{ appointment.appointment_time|time:"h:i A" }}</span>
+                </div>
+                
+                <!-- الرسوم تظهر دائماً وتكتب (مجاني) إذا كانت 0 -->
+                <div class="row-data mt-2" style="border-top: 1px solid #ddd; padding-top: 5px;">
+                    <span>الرسوم:</span>
+                    <span class="fw-bold">
+                        {% if appointment.consultation_fee > 0 %}
+                            {{ appointment.consultation_fee }} ج.م
+                        {% else %}
+                            مجاني
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- التذييل -->
+            <div class="text-center" style="font-size: 12px; margin-top: 10px;">
+                <p style="margin: 0;">الرجاء الانتظار في الاستراحة</p>
+                <p style="margin: 3px 0 0 0; font-weight: bold;">مع تمنياتنا بالشفاء العاجل</p>
+            </div>
+
+            <!-- أزرار التحكم (تختفي عند الطباعة) -->
+            <div class="controls no-print">
+                <button onclick="window.print()" class="btn-custom btn-print">
+                    <i class="fas fa-print me-2"></i> طباعة التذكرة
+                </button>
+                <button onclick="window.close(); window.history.back();" class="btn-custom btn-back">
+                    <i class="fas fa-arrow-right me-2"></i> العودة للمواعيد
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- سكريبت لفتح نافذة الطباعة فور تحميل الصفحة -->
+<script>
+    window.onload = function() {
+        setTimeout(function() {
+            window.print();
+        }, 500); // تأخير بسيط نصف ثانية لضمان تحميل اللوجو والخطوط
+    }
+</script>
+{% endblock %}

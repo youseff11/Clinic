@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}سجل المرضى{% endblock %}
+{% block page_title %}سجل المرضى{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="fas fa-users me-2"></i>المرضى المسجلون</span>
+    <a href="{% url 'secretary_patient_add' %}" class="btn btn-sm btn-light">
+      <i class="fas fa-plus me-1"></i>تسجيل مريض جديد
+    </a>
+  </div>
+  <div class="card-body">
+    <!-- بحث -->
+    <form method="get" class="mb-4">
+      <div class="input-group">
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="ابحث بالاسم، الهاتف، أو الرقم القومي...">
+        <button class="btn btn-cu" type="submit"><i class="fas fa-search"></i></button>
+        {% if query %}
+        <a href="{% url 'secretary_patients' %}" class="btn btn-outline-secondary">مسح</a>
+        {% endif %}
+      </div>
+    </form>
+
+    {% if patients %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>رقم المريض</th>
+            <th>الاسم</th>
+            <th>الجنس</th>
+            <th>رقم الهاتف</th>
+            <th>الرقم القومي</th>
+            <th>تاريخ التسجيل</th>
+            <th>إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for patient in patients %}
+          <tr>
+            <td><span class="badge bg-danger">#{{ patient.patient_number }}</span></td>
+            <td class="fw-bold">{{ patient.name }}</td>
+            <td>{{ patient.get_gender_display }}</td>
+            <td>{{ patient.phone|default:"—" }}</td>
+            <td>{{ patient.national_id|default:"—" }}</td>
+            <td>{{ patient.created_at|date:"Y/m/d" }}</td>
+            <td>
+              <div class="d-flex gap-1">
+                <a href="{% url 'secretary_patient_detail' patient.pk %}" class="btn btn-sm btn-outline-primary" title="عرض الملف">
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a href="{% url 'secretary_appointment_add' %}?patient={{ patient.pk }}" class="btn btn-sm btn-outline-success" title="حجز موعد">
+                  <i class="fas fa-calendar-plus"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+      <p>{% if query %}لا توجد نتائج للبحث "{{ query }}"{% else %}لا يوجد مرضى مسجلون بعد{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

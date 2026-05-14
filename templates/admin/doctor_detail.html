@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}تفاصيل الطبيب - {{ doctor }}{% endblock %}
+{% block page_title %}ملف الطبيب{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+  <!-- قسم بيانات الطبيب -->
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header text-white d-flex align-items-center" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+        <i class="fas fa-user-md me-2"></i>
+        <h6 class="mb-0 fw-bold">البيانات الأساسية للطبيب</h6>
+      </div>
+      <div class="card-body">
+        <div class="text-center mb-4 pb-3 border-bottom">
+          <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 80px; height: 80px; border: 2px solid #8B0000;">
+            <i class="fas fa-stethoscope fa-2x" style="color: #8B0000;"></i>
+          </div>
+          <h4 class="fw-bold mb-2" style="color: #1a1a2e;">{{ doctor }}</h4>
+          <span class="badge bg-dark px-3 py-2 fs-6 rounded-pill">{{ doctor.specialty.name|default:"تخصص غير محدد" }}</span>
+        </div>
+        
+        <table class="table table-borderless table-sm mb-0">
+          <tbody>
+            <tr>
+              <th class="text-muted" style="width: 40%;"><i class="fas fa-user me-2"></i>اسم المستخدم</th>
+              <td class="fw-bold">{{ doctor.user.username }}</td>
+            </tr>
+            <tr>
+              <th class="text-muted"><i class="fas fa-phone-alt me-2"></i>رقم الهاتف</th>
+              <td>{{ doctor.phone|default:"-" }}</td>
+            </tr>
+            <tr>
+              <th class="text-muted"><i class="fas fa-calendar-check me-2"></i>إجمالي المواعيد</th>
+              <td><span class="badge bg-primary px-2 py-1 rounded-pill">{{ appointments.count }}</span></td>
+            </tr>
+            <tr>
+              <th class="text-muted"><i class="fas fa-pills me-2"></i>إجمالي الروشتات</th>
+              <td><span class="badge bg-success px-2 py-1 rounded-pill">{{ prescriptions.count }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- قسم المواعيد والروشتات -->
+  <div class="col-md-8">
+    
+    <!-- جدول المواعيد -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span class="fw-bold text-dark"><i class="fas fa-calendar-alt text-primary me-2"></i>مواعيد الطبيب</span>
+        <span class="badge bg-primary rounded-pill">{{ appointments.count }}</span>
+      </div>
+      <div class="card-body p-0">
+        <!-- Scrollable table in case of many appointments -->
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-muted" style="position: sticky; top: 0; z-index: 1;">
+              <tr>
+                <th>التاريخ والوقت</th>
+                <th>المريض</th>
+                <th>الحالة</th>
+                <th>سعر الكشف</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for appt in appointments %}
+              <tr>
+                <td>
+                  <div class="fw-bold">{{ appt.appointment_date|date:"Y/m/d" }}</div>
+                  <small class="text-muted"><i class="far fa-clock me-1"></i>{{ appt.appointment_time|time:"H:i" }}</small>
+                </td>
+                <td>
+                  <!-- رابط يوديك لملف المريض عشان لو الإدمن حب يشوف بياناته -->
+                  <a href="{% url 'admin_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-dark">
+                    {{ appt.patient.name }}
+                  </a>
+                </td>
+                <td><span class="badge badge-{{ appt.status }} px-2 py-1">{{ appt.get_status_display }}</span></td>
+                <td>{{ appt.consultation_fee }} ج.م</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                  <i class="far fa-calendar-times fs-4 d-block mb-2 text-light"></i>
+                  لا توجد مواعيد مسجلة لهذا الطبيب
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+<!-- جدول خطط الجلسات (العلاج الطبيعي) -->
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <span class="fw-bold text-dark"><i class="fas fa-notes-medical text-success me-2"></i>خطط الجلسات للمرضى</span>
+        <span class="badge bg-success rounded-pill">{{ prescriptions.count }}</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-muted" style="position: sticky; top: 0; z-index: 1;">
+              <tr>
+                <th>تاريخ الخطة</th>
+                <th>نوع الإصابة</th>
+                <th>المريض</th>
+                <th>بداية / نهاية الجلسات</th>
+                <th>الموقف (منفذ/إجمالي)</th>
+                <th>المتبقي</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rx in prescriptions %}
+              <tr>
+                <td class="text-muted small">{{ rx.created_at|date:"Y/m/d" }}</td>
+                <td class="fw-bold text-success">{{ rx.injury_type }}</td>
+                <td>
+                  <a href="{% url 'admin_patient_detail' rx.medical_record.patient.pk %}" class="text-decoration-none text-dark fw-bold">
+                    {{ rx.medical_record.patient.name }}
+                  </a>
+                </td>
+                <td class="small text-muted">
+                  <div><i class="fas fa-play text-primary me-1" style="font-size: 10px;"></i> {{ rx.first_session_date|date:"Y/m/d"|default:"لم يحدد" }}</div>
+                  <div><i class="fas fa-stop text-danger me-1" style="font-size: 10px;"></i> {{ rx.last_session_date|date:"Y/m/d"|default:"لم يحدد" }}</div>
+                </td>
+                <td>
+                  <span class="badge bg-info text-dark">{{ rx.completed_sessions }} من {{ rx.total_sessions }}</span>
+                </td>
+                <td>
+                  {% if rx.remaining_sessions == 0 %}
+                    <span class="badge bg-success">مكتمل <i class="fas fa-check"></i></span>
+                  {% else %}
+                    <span class="badge bg-warning text-dark">{{ rx.remaining_sessions }} جلسة</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                  <i class="fas fa-file-medical-alt fs-4 d-block mb-2 text-light"></i>
+                  لا توجد خطط جلسات مسجلة لهذا الطبيب
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="mt-2">
+  <a href="{% url 'admin_doctors' %}" class="btn btn-secondary px-4 py-2">
+    <i class="fas fa-arrow-right me-2"></i>العودة لقائمة الأطباء
+  </a>
+</div>
+{% endblock %}

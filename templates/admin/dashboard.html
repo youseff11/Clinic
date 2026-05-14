@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block title %}لوحة الإدارة{% endblock %}
+{% block page_title %}لوحة التحكم - الإدارة{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card border-start border-4 border-info shadow-sm bg-white p-3 rounded h-100">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num fs-3 fw-bold text-info">{{ stats.total_patients }}</div>
+          <div class="stat-label text-muted small">إجمالي المرضى</div>
+        </div>
+        <i class="fas fa-users fa-2x text-info opacity-50"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card border-start border-4 border-primary shadow-sm bg-white p-3 rounded h-100">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num fs-3 fw-bold text-primary">{{ stats.total_doctors }}</div>
+          <div class="stat-label text-muted small">الأطباء</div>
+        </div>
+        <i class="fas fa-user-md fa-2x text-primary opacity-50"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card border-start border-4 border-success shadow-sm bg-white p-3 rounded h-100">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num fs-3 fw-bold text-success">{{ stats.today_appointments }}</div>
+          <div class="stat-label text-muted small">مواعيد اليوم</div>
+        </div>
+        <i class="fas fa-calendar-day fa-2x text-success opacity-50"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card border-start border-4 border-warning shadow-sm bg-white p-3 rounded h-100">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="stat-num fs-3 fw-bold text-warning">{{ stats.pending }}</div>
+          <div class="stat-label text-muted small">مواعيد معلقة</div>
+        </div>
+        <i class="fas fa-clock fa-2x text-warning opacity-50"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header text-white d-flex justify-content-between align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+        <span class="fw-bold"><i class="fas fa-calendar-check me-2"></i>مواعيد اليوم</span>
+        <a href="{% url 'admin_appointment_add' %}" class="btn btn-sm btn-light text-dark fw-bold shadow-sm rounded-pill px-3">
+          <i class="fas fa-plus me-1"></i>إضافة موعد
+        </a>
+      </div>
+      <div class="card-body p-0">
+        {% if today_appointments %}
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+          <table class="table table-hover align-middle text-center mb-0" style="font-size: 0.9rem;">
+            <thead class="table-light text-muted text-nowrap" style="position: sticky; top: 0; z-index: 1;">
+              <tr>
+                <th>المريض</th>
+                <th>الوقت</th>
+                <th>الطبيب المعالج</th>
+                <th>تفاصيل الحجز</th>
+                <th>الحالة</th>
+                <th>الجلسات</th>
+                <th>إجراء</th> 
+              </tr>
+            </thead>
+            <tbody>
+              {% for appt in today_appointments %}
+              <tr>
+                
+                <td class="text-nowrap text-start px-3">
+                  <a href="{% url 'admin_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-dark d-block mb-1">
+                    {{ appt.patient.name }}
+                  </a>
+                  <span class="badge bg-light text-dark border border-secondary-subtle">رقم: #{{ appt.patient.patient_number }}</span>
+                </td>
+                
+                <td class="text-nowrap">
+                  <i class="fas fa-clock text-muted me-1"></i><span class="fw-bold">{{ appt.appointment_time|time:"h:i A" }}</span>
+                </td>
+                
+                <td class="text-nowrap">
+                  <div class="fw-bold text-primary">{{ appt.doctor|default:"-" }}</div>
+                  <div class="small text-muted">{{ appt.specialty.name|default:"-" }}</div>
+                </td>
+
+                <td class="text-nowrap">
+                  <div class="mb-1">
+                    <span class="badge bg-secondary">{{ appt.get_appointment_type_display }}</span>
+                  </div>
+                  <div class="small text-muted" style="font-size: 0.75rem;">
+                    <i class="fas fa-user-edit me-1"></i>
+                    {% if appt.created_by %}
+                      {{ appt.created_by.get_full_name|default:appt.created_by.username }}
+                    {% else %}
+                      غير محدد
+                    {% endif %}
+                  </div>
+                </td>
+                
+                <td class="text-nowrap">
+                  {% if appt.status == 'completed' %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fas fa-check me-1"></i>مكتمل</span>
+                  {% elif appt.status == 'cancelled' %}
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1"><i class="fas fa-times me-1"></i>ملغي</span>
+                  {% elif appt.status == 'confirmed' %}
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1"><i class="fas fa-calendar-check me-1"></i>مؤكد</span>
+                  {% else %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1"><i class="fas fa-hourglass-half me-1"></i>انتظار</span>
+                  {% endif %}
+                </td>
+
+                <td class="text-nowrap">
+                  {% with latest_record=appt.patient.medical_records.first %}
+                    {% if latest_record and latest_record.prescriptions.first %}
+                      {% with rx=latest_record.prescriptions.first %}
+                        <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1" title="{{ rx.injury_type }}">
+                          {{ rx.completed_sessions }} من {{ rx.total_sessions }}
+                        </span>
+                      {% endwith %}
+                    {% else %}
+                      <span class="text-muted small">-</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+                
+                <td>
+                  <a href="{% url 'print_slip' appt.pk %}" target="_blank" class="btn btn-sm btn-outline-dark rounded-circle shadow-sm" title="طباعة تذكرة الانتظار" style="width: 32px; height: 32px; padding: 4px;">
+                    <i class="fas fa-print"></i>
+                  </a>
+                </td>
+
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="fas fa-calendar-times fa-3x mb-3 d-block opacity-50"></i>
+          لا توجد مواعيد مسجلة لليوم
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header text-white d-flex justify-content-between align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+        <span class="fw-bold"><i class="fas fa-user-plus me-2"></i>أحدث المرضى</span>
+        <a href="{% url 'admin_patient_add' %}" class="btn btn-sm btn-light text-dark fw-bold shadow-sm rounded-circle" title="إضافة مريض جديد">
+          <i class="fas fa-plus"></i>
+        </a>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for patient in recent_patients %}
+        <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+          <div>
+            <a href="{% url 'admin_patient_detail' patient.pk %}" class="fw-bold text-dark text-decoration-none d-block mb-1">{{ patient.name }}</a>
+            <span class="badge bg-light text-dark border">رقم: #{{ patient.patient_number }}</span>
+          </div>
+          <a href="{% url 'admin_patient_detail' patient.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm">
+            <i class="fas fa-eye me-1"></i>الملف
+          </a>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-center text-muted py-4">
+          <i class="fas fa-users-slash d-block mb-2 fs-4 opacity-50"></i>
+          لا يوجد مرضى مسجلين
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

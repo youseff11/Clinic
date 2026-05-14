@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}مواعيدي{% endblock %}
+{% block page_title %}سجل مواعيد القسم - د. {{ doctor.user.first_name|default:doctor.user.username }}{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-header text-white d-flex align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
+    <i class="fas fa-calendar-alt me-2"></i>
+    <h6 class="mb-0 fw-bold">جميع المواعيد المسجلة (قسم: {{ doctor.specialty }})</h6>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+      <table class="table table-hover align-middle text-center mb-0">
+        <thead class="table-light text-muted" style="position: sticky; top: 0; z-index: 1;">
+          <tr>
+            <th>رقم المريض</th>
+            <th>المريض</th>
+            <th>التاريخ والوقت</th>
+            <th>حالة الاستلام</th>
+            <th>تم الكشف؟</th>
+            <th>خطة الجلسات</th>
+            <th>إجراء</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appt in appointments %}
+          <tr>
+            <td><span class="badge bg-dark">#{{ appt.patient.patient_number }}</span></td>
+            <td>
+              <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-dark">
+                {{ appt.patient.name }}
+              </a>
+              <div class="small text-muted mt-1">{{ appt.specialty.name|default:"-" }}</div>
+            </td>
+            <td>
+              <div class="fw-bold">{{ appt.appointment_date|date:"Y/m/d" }}</div>
+              <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ appt.appointment_time|time:"h:i A" }}</small>
+            </td>
+            
+            <!-- خانة حالة الاستلام (نظام التوزيع) -->
+            <td>
+              {% if not appt.doctor %}
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1">
+                  <i class="fas fa-hourglass-half me-1"></i>في الانتظار
+                </span>
+              {% elif appt.doctor == doctor %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                  <i class="fas fa-user-md me-1"></i>معك
+                </span>
+              {% else %}
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">
+                  مع د. {{ appt.doctor }}
+                </span>
+              {% endif %}
+            </td>
+
+            <!-- خانة الحالة (تم الكشف؟) -->
+            <td>
+              {% if appt.status == 'completed' %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fas fa-check me-1"></i>نعم</span>
+              {% elif appt.status == 'cancelled' %}
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1"><i class="fas fa-times me-1"></i>ملغي</span>
+              {% else %}
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1"><i class="fas fa-hourglass-half me-1"></i>انتظار</span>
+              {% endif %}
+            </td>
+
+            <!-- خانة خطة الجلسات -->
+            <td>
+              {% with latest_record=appt.patient.medical_records.first %}
+                {% if latest_record and latest_record.prescriptions.first %}
+                  {% with rx=latest_record.prescriptions.first %}
+                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1" title="{{ rx.injury_type }}">
+                      {{ rx.completed_sessions }} من {{ rx.total_sessions }}
+                    </span>
+                  {% endwith %}
+                {% else %}
+                  <span class="text-muted small">لا توجد خطة</span>
+                {% endif %}
+              {% endwith %}
+            </td>
+
+            <!-- الإجراءات (ملف + استلام) -->
+            <td>
+              <div class="d-flex gap-1 justify-content-center">
+                <!-- زر الملف دائماً موجود -->
+                <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm" title="عرض التفاصيل">
+                  <i class="fas fa-eye me-1"></i>الملف
+                </a>
+
+                <!-- أزرار الاستلام والمتابعة حسب حالة الموعد -->
+                {% if not appt.doctor %}
+                  {% if appt.appointment_type == 'session' %}
+                    <a href="{% url 'doctor_handle_appointment' appt.pk %}" class="btn btn-sm shadow-sm text-white rounded-pill px-3" style="background:#1a6b3c;" title="إضافة جلسة علاجية">
+                      <i class="fas fa-hand-holding-medical me-1"></i>جلسة تالية
+                    </a>
+                  {% else %}
+                    <a href="{% url 'doctor_handle_appointment' appt.pk %}" class="btn btn-sm shadow-sm text-white rounded-pill px-3" style="background:#8B0000;" title="استلام الحالة والبدء بالكشف">
+                      <i class="fas fa-hand-holding-medical me-1"></i>استلام
+                    </a>
+                  {% endif %}
+                {% elif appt.doctor == doctor and appt.status != 'completed' %}
+                  {% if appt.appointment_type == 'session' %}
+                    <a href="{% url 'doctor_handle_appointment' appt.pk %}" class="btn btn-sm btn-success shadow-sm rounded-pill px-3" title="تسجيل جلسة علاجية">
+                      <i class="fas fa-plus-circle me-1"></i>جلسة تالية
+                    </a>
+                  {% else %}
+                    <a href="{% url 'doctor_handle_appointment' appt.pk %}" class="btn btn-sm btn-success shadow-sm rounded-pill px-3" title="متابعة الكشف">
+                      <i class="fas fa-notes-medical me-1"></i>متابعة
+                    </a>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-5">
+              <i class="fas fa-calendar-times fa-3x d-block mb-3 opacity-50"></i>
+              لا توجد أي مواعيد مسجلة حتى الآن.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
