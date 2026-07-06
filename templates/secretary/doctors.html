@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-  <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-user-md me-2" style="color: #8B0000;"></i>الأطباء المتاحين بالعيادة</h5>
+  <h5 class="mb-0 fw-bold text-body"><i class="fas fa-user-md me-2" style="color: #8B0000;"></i>الأطباء المتاحين بالعيادة</h5>
 </div>
 
 <div class="row g-4">
@@ -17,8 +17,8 @@
           <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 80px; height: 80px; border: 2px solid #8B0000;">
             <i class="fas fa-stethoscope fa-2x" style="color: #8B0000;"></i>
           </div>
-          <h5 class="fw-bold text-dark mb-2">{{ doctor }}</h5>
-          <span class="badge bg-light text-dark border px-3 py-2 rounded-pill shadow-sm">
+          <h5 class="fw-bold text-body mb-2">{{ doctor }}</h5>
+          <span class="badge bg-light text-body border px-3 py-2 rounded-pill shadow-sm">
             {{ doctor.specialty.name|default:"تخصص غير محدد" }}
           </span>
         </div>
@@ -26,7 +26,7 @@
         <div class="mt-4 text-start bg-light p-3 rounded">
           <div class="d-flex justify-content-between py-2 border-bottom border-white">
             <span class="text-muted small"><i class="fas fa-phone-alt me-2"></i>رقم التواصل</span>
-            <strong class="text-dark">{{ doctor.phone|default:"-" }}</strong>
+            <strong class="text-body">{{ doctor.phone|default:"-" }}</strong>
           </div>
           <div class="d-flex justify-content-between py-2 align-items-center">
             <span class="text-muted small"><i class="fas fa-calendar-check me-2"></i>الحجوزات المسجلة</span>
@@ -39,7 +39,7 @@
   </div>
   {% empty %}
   <div class="col-12">
-    <div class="text-center bg-white p-5 rounded shadow-sm border-0">
+    <div class="text-center bg-body-secondary p-5 rounded shadow-sm border-0">
       <i class="fas fa-user-md fa-4x text-muted mb-3 opacity-50"></i>
       <h5 class="text-muted fw-bold">لا يوجد أطباء مسجلون في النظام حالياً</h5>
     </div>

@@ -5,25 +5,25 @@
 {% block content %}
 <div class="row g-3 mb-4">
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-primary shadow-sm bg-white p-3 rounded">
+    <div class="stat-card border-start border-4 border-primary shadow-sm bg-body-secondary p-3 rounded">
       <div class="stat-num fs-3 fw-bold text-primary">{{ stats.today_count }}</div>
       <div class="stat-label text-muted small">إجمالي مواعيد القسم اليوم</div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-success shadow-sm bg-white p-3 rounded">
+    <div class="stat-card border-start border-4 border-success shadow-sm bg-body-secondary p-3 rounded">
       <div class="stat-num fs-3 fw-bold text-success">{{ stats.completed_today }}</div>
       <div class="stat-label text-muted small">مكتملة بالقسم اليوم</div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-warning shadow-sm bg-white p-3 rounded">
+    <div class="stat-card border-start border-4 border-warning shadow-sm bg-body-secondary p-3 rounded">
       <div class="stat-num fs-3 fw-bold text-warning">{{ stats.pending_today }}</div>
       <div class="stat-label text-muted small">قيد الانتظار في القسم</div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-info shadow-sm bg-white p-3 rounded">
+    <div class="stat-card border-start border-4 border-info shadow-sm bg-body-secondary p-3 rounded">
       <div class="stat-num fs-3 fw-bold text-info">{{ stats.total_department_patients }}</div>
       <div class="stat-label text-muted small">إجمالي مرضى القسم</div>
     </div>
@@ -57,7 +57,7 @@
               <tr>
                 <td><span class="badge bg-dark">#{{ appt.patient.patient_number }}</span></td>
                 <td>
-                  <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-dark">
+                  <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-body">
                     {{ appt.patient.name }}
                   </a>
                 </td>
@@ -163,10 +163,10 @@
         {% for appt in upcoming %}
         <li class="list-group-item d-flex justify-content-between align-items-center p-3">
           <div>
-            <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="fw-bold text-dark text-decoration-none d-block mb-1">{{ appt.patient.name }}</a>
+            <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="fw-bold text-body text-decoration-none d-block mb-1">{{ appt.patient.name }}</a>
             <small class="text-muted"><i class="far fa-calendar me-1"></i>{{ appt.appointment_date|date:"Y/m/d" }} - {{ appt.appointment_time|time:"h:i A" }}</small>
           </div>
-          <span class="badge bg-light text-dark border">{{ appt.get_status_display }}</span>
+          <span class="badge bg-light text-body border">{{ appt.get_status_display }}</span>
         </li>
         {% empty %}
         <li class="list-group-item text-center text-muted py-4">

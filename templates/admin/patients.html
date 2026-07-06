@@ -12,41 +12,9 @@
   </form>
   
   <div class="d-flex gap-2">
-    <!-- زرار فتح نافذة الـ SMS -->
-    <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#smsModal">
-      <i class="fas fa-sms me-1"></i> إرسال رسالة للكل
-    </button>
     <a href="{% url 'admin_patient_add' %}" class="btn shadow-sm" style="background:#8B0000;color:white;">
       <i class="fas fa-plus me-1"></i> إضافة مريض وحجز موعد
     </a>
-  </div>
-</div>
-
-<!-- النافذة المنبثقة (Modal) لإرسال الـ SMS -->
-<div class="modal fade" id="smsModal" tabindex="-1" aria-labelledby="smsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg">
-      <form method="post" action="{% url 'send_bulk_sms' %}">
-        {% csrf_token %}
-        <div class="modal-header text-white" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
-          <h5 class="modal-title fw-bold" id="smsModalLabel"><i class="fas fa-comment-dots me-2"></i>إرسال رسالة نصية (SMS)</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4">
-          <div class="alert alert-info small border-0 shadow-sm rounded">
-            <i class="fas fa-info-circle me-1"></i> سيتم إرسال هذه الرسالة إلى جميع المرضى المسجل لهم رقم هاتف في النظام.
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold text-muted">نص الرسالة</label>
-            <textarea name="sms_message" class="form-control" rows="5" required placeholder="اكتب محتوى الرسالة هنا... (مثال: نعتذر عن العمل غداً، أو يوجد خصم على الكشوفات...)" style="resize: none;"></textarea>
-          </div>
-        </div>
-        <div class="modal-footer bg-light border-0">
-          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
-          <button type="submit" class="btn btn-success px-4"><i class="fas fa-paper-plane me-2"></i>إرسال الآن</button>
-        </div>
-      </form>
-    </div>
   </div>
 </div>
 
@@ -93,7 +61,8 @@
     </div>
   </div>
 </div>
-{% endblock %}
+{% include "includes/pagination.html" with page_obj=patients %}
+{% endblock content %}
 
 {% block extra_js %}
 <script>

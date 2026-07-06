@@ -27,7 +27,7 @@
           <tr>
             <td><span class="badge bg-dark">#{{ appt.patient.patient_number }}</span></td>
             <td>
-              <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-dark">
+              <a href="{% url 'doctor_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-body">
                 {{ appt.patient.name }}
               </a>
               <div class="small text-muted mt-1">{{ appt.specialty.name|default:"-" }}</div>

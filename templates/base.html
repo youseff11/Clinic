@@ -4,10 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}عيادة جامعة القاهرة{% endblock %}</title>
-
-<!-- ده السطر اللي اتضاف عشان الـ Favicon -->
 <link rel="icon" href="/media/2.png" type="image/png">
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
@@ -15,200 +12,142 @@
     --cu-red: #8B0000;
     --cu-gold: #C9A84C;
     --cu-dark: #1a1a2e;
-    --cu-gray: #f8f9fa;
-    --sidebar-w: 280px; 
+    --cu-gray: #f0f2f5;
+    --sidebar-w: 260px;
+    --bg-body: #f0f2f5;
+    --bg-card: #ffffff;
+    --bg-card-alt: #f8f9fa;
+    --text-main: #212529;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --topbar-bg: #ffffff;
+    --table-hover: rgba(0,0,0,0.02);
+    --shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
-  
-  body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background: #f0f2f5; 
+
+  [data-theme="dark"] {
+    --cu-dark: #0d1117;
+    --bg-body: #0d1117;
+    --bg-card: #161b22;
+    --bg-card-alt: #1c2333;
+    --text-main: #e6edf3;
+    --text-muted: #8b949e;
+    --border-color: #30363d;
+    --topbar-bg: #161b22;
+    --table-hover: rgba(255,255,255,0.04);
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
-  
-  /* تصميم الـ Sidebar الأساسي */
+
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg-body); color: var(--text-main); transition: background .3s, color .3s; }
+
+  /* ===== Sidebar ===== */
   .sidebar {
-    width: var(--sidebar-w); 
-    min-height: 100vh; 
-    background: var(--cu-dark);
-    position: fixed; 
-    right: 0; 
-    top: 0; 
-    z-index: 100;
-    box-shadow: -4px 0 15px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
+    width: var(--sidebar-w); min-height: 100vh; background: var(--cu-dark);
+    position: fixed; right: 0; top: 0; z-index: 1050;
+    display: flex; flex-direction: column;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.15);
+    transition: transform .3s ease;
   }
-  
-  /* تصميم احترافي لهيدر الـ Sidebar */
   .sidebar-header {
     background: linear-gradient(145deg, #7a0000, #5c0000);
-    padding: 30px 20px 25px;
-    text-align: center;
+    padding: 24px 16px 20px; text-align: center;
     border-bottom: 3px solid var(--cu-gold);
-    position: relative;
-    overflow: hidden;
   }
-  
-  /* تأثير ضوئي خفيف في خلفية الهيدر */
-  .sidebar-header::before {
-    content: '';
-    position: absolute;
-    top: -50%; left: -50%; width: 200%; height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-    opacity: 0.6;
-    pointer-events: none;
-  }
-
-  /* تصميم لوجو الجامعة بعد التعديل لملء الفراغ */
   .sidebar-header .logo-container {
-    width: 85px;
-    height: 85px;
-    margin: 0 auto 15px;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    border: 3px solid var(--cu-gold);
-    transition: transform 0.3s ease;
-    overflow: hidden; /* بيقص أي زيادات من الصورة عشان تفضل دايرة */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 70px; height: 70px; margin: 0 auto 12px;
+    background: white; border-radius: 50%;
+    border: 2px solid var(--cu-gold); overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
   }
-  
-  .sidebar-header:hover .logo-container {
-    transform: scale(1.05);
-  }
-
-  /* الصورة هتاخد 100% من الدايرة */
-  .sidebar-header .logo-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* بيخلي الصورة تملى المكان بالظبط من غير ما تتمط */
-  }
-
-  .sidebar-header h6 { 
-    color: #ffffff; 
-    margin: 0 0 5px; 
-    font-size: 1.1rem; 
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-  }
-  
-  .sidebar-header small { 
-    color: var(--cu-gold); 
-    font-size: 0.8rem; 
-    font-weight: 600;
-    opacity: 0.9;
-  }
-
-  /* تصميم الروابط (Navigation Links) */
-  .sidebar-nav-container {
-    flex-grow: 1;
-    padding: 15px 0;
-    overflow-y: auto;
-  }
-
-  .nav-section { 
-    padding: 15px 25px 8px; 
-    color: #888; 
-    font-size: 0.75rem; 
-    font-weight: 600;
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-  }
-
+  .sidebar-header .logo-container img { width: 100%; height: 100%; object-fit: cover; }
+  .sidebar-header h6 { color: #fff; margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
+  .sidebar-header small { color: var(--cu-gold); font-size: .75rem; }
+  .sidebar-nav-container { flex-grow: 1; padding: 12px 0; overflow-y: auto; }
+  .nav-section { padding: 12px 20px 6px; color: #888; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
   .nav-link-side {
-    display: flex; 
-    align-items: center; 
-    gap: 15px; 
-    padding: 14px 25px;
-    color: #aeb2b7; 
-    text-decoration: none; 
-    transition: all 0.3s ease;
-    border-right: 4px solid transparent;
-    font-size: 0.95rem;
-    font-weight: 500;
+    display: flex; align-items: center; gap: 12px; padding: 11px 20px;
+    color: #aeb2b7; text-decoration: none; transition: all .2s;
+    border-right: 3px solid transparent; font-size: .9rem;
   }
+  .nav-link-side:hover, .nav-link-side.active { color: #fff; background: rgba(255,255,255,.05); border-right-color: var(--cu-gold); }
+  .nav-link-side i { width: 20px; text-align: center; font-size: 1rem; }
 
-  .nav-link-side:hover, .nav-link-side.active {
-    color: #ffffff; 
-    background: rgba(255,255,255,0.05);
-    border-right-color: var(--cu-gold);
-  }
-  
-  .nav-link-side.active {
-    background: linear-gradient(90deg, rgba(201,168,76,0.1) 0%, transparent 100%);
-  }
-
-  .nav-link-side i { 
-    width: 22px; 
-    text-align: center; 
-    font-size: 1.1rem;
-    transition: transform 0.2s;
-  }
-
-  .nav-link-side:hover i {
-    transform: scale(1.1);
-    color: var(--cu-gold);
-  }
-
-  /* تصميم الشريط العلوي (Topbar) */
-  .main-content { margin-right: var(--sidebar-w); min-height: 100vh; }
-  
+  /* ===== Main ===== */
+  .main-content { margin-right: var(--sidebar-w); min-height: 100vh; transition: margin .3s; }
   .topbar {
-    background: white; 
-    padding: 15px 30px; 
-    display: flex; 
-    align-items: center;
-    justify-content: space-between; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    position: sticky; top: 0; z-index: 99;
+    background: var(--topbar-bg); padding: 12px 24px; display: flex;
+    align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow); position: sticky; top: 0; z-index: 99;
+    border-bottom: 1px solid var(--border-color);
   }
-  
-  .topbar h5 { 
-    margin: 0; 
-    color: var(--cu-dark); 
-    font-weight: 700; 
-    font-size: 1.25rem;
+  .topbar h5 { margin: 0; color: var(--text-main); font-weight: 700; font-size: 1.15rem; }
+  .content-area { padding: 20px; }
+
+  /* ===== Cards / Tables (dark mode aware) ===== */
+  .card { border: 1px solid var(--border-color); border-radius: 12px; box-shadow: var(--shadow); background: var(--bg-card); color: var(--text-main); }
+  .card-header { background: var(--cu-red); color: white; border-radius: 12px 12px 0 0 !important; padding: 14px 18px; font-weight: 600; }
+  .card-body { background: var(--bg-card); color: var(--text-main); }
+  .list-group-item { background: var(--bg-card); color: var(--text-main); border-color: var(--border-color); }
+  .table { color: var(--text-main); --bs-table-bg: var(--bg-card); --bs-table-hover-bg: var(--table-hover); }
+  .table-light { --bs-table-bg: var(--bg-card-alt) !important; --bs-table-color: var(--text-muted) !important; }
+  .form-control, .form-select { background: var(--bg-card); color: var(--text-main); border-color: var(--border-color); }
+  .form-control:focus, .form-select:focus { background: var(--bg-card); color: var(--text-main); border-color: var(--cu-gold); box-shadow: 0 0 0 .2rem rgba(201,168,76,.25); }
+  .alert { color: var(--text-main); }
+
+  .stat-card {
+    background: var(--bg-card); border-radius: 12px; padding: 18px;
+    box-shadow: var(--shadow); border-right: 4px solid var(--cu-red); transition: transform .2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card .stat-num { font-size: 2rem; font-weight: 800; color: var(--cu-red); }
+  .stat-card .stat-label { color: var(--text-muted); font-size: .85rem; font-weight: 600; }
+
+  .badge-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+  .badge-confirmed { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+  .badge-completed { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+  .badge-cancelled { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+  .btn-cu { background: var(--cu-red); color: white; }
+  .btn-cu:hover { background: #6d0000; color: white; }
+
+  .form-section { background: var(--bg-card); border-radius: 12px; padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; border: 1px solid var(--border-color); }
+  .form-section-title { font-weight: 700; color: var(--text-main); border-bottom: 2px solid var(--cu-gold); padding-bottom: 10px; margin-bottom: 20px; font-size: 1.1rem; }
+
+  /* Theme toggle */
+  .theme-toggle { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 6px; border-radius: 8px; }
+  .theme-toggle:hover { color: var(--cu-gold); background: rgba(201,168,76,.1); }
+
+  /* Hamburger */
+  .hamburger { display: none; background: none; border: none; font-size: 1.4rem; color: var(--text-main); cursor: pointer; padding: 8px; }
+
+  /* Overlay */
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1040; }
+
+  /* Pagination */
+  .page-link { color: var(--cu-red); background: var(--bg-card); border-color: var(--border-color); }
+  .page-item.active .page-link { background: var(--cu-red); border-color: var(--cu-red); color: white; }
+
+  /* Hover shadow for cards */
+  .hover-shadow { transition: all .3s ease-in-out; }
+  .hover-shadow:hover { transform: translateY(-4px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.12) !important; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 992px) {
+    .sidebar { transform: translateX(100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.show { display: block; }
+    .main-content { margin-right: 0; }
+    .hamburger { display: inline-block; }
+    .content-area { padding: 16px 12px; }
+    .topbar { padding: 10px 14px; }
+    .stat-card { padding: 14px; }
+    .stat-card .stat-num { font-size: 1.5rem; }
   }
 
-  /* تصميم الكروت والمحتوى */
-  .content-area { padding: 30px; }
-  
-  .stat-card {
-    background: white; border-radius: 12px; padding: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.04); 
-    border-right: 4px solid var(--cu-red);
-    transition: transform 0.2s;
-  }
-  .stat-card:hover { transform: translateY(-3px); }
-  
-  .stat-card .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--cu-red); }
-  .stat-card .stat-label { color: #6c757d; font-size: 0.9rem; font-weight: 600; }
-  
-  .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
-  .card-header { 
-    background: var(--cu-red); 
-    color: white; 
-    border-radius: 12px 12px 0 0 !important; 
-    padding: 16px 20px; 
-    font-weight: 600; 
-    letter-spacing: 0.5px;
-  }
-  
-  /* الشارات (Badges) */
-  .badge { padding: 0.4em 0.8em; font-weight: 500; }
-  .badge-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-  .badge-confirmed { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb;}
-  .badge-completed { background: #d4edda; color: #155724; border: 1px solid #c3e6cb;}
-  .badge-cancelled { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;}
-  
-  .btn-cu { background: var(--cu-red); color: white; transition: all 0.2s; }
-  .btn-cu:hover { background: #6d0000; color: white; transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
-  
-  @media (max-width: 992px) {
-    .sidebar { display: none; }
-    .main-content { margin-right: 0; }
+  @media (max-width: 576px) {
+    .topbar h5 { font-size: .95rem; }
+    .table { font-size: .82rem; }
+    .card-header { padding: 10px 14px; font-size: .9rem; }
   }
 </style>
 {% block extra_head %}{% endblock %}
@@ -216,99 +155,63 @@
 <body>
 {% load auth_extras %}
 {% if user.is_authenticated %}
-<div class="sidebar">
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <div class="logo-container">
-      <!-- استخدمنا الـ Favicon كلوجو أساسي هنا -->
-      <img src="/media/2.png" alt="لوجو جامعة القاهرة">
-    </div>
+    <div class="logo-container"><img src="/media/2.png" alt="لوجو جامعة القاهرة"></div>
     <h6>كليه العلاج الطبيعى جامعه القاهره</h6>
     <small>نظام إدارة العيادة الطبية</small>
   </div>
-  
   <div class="sidebar-nav-container">
     {% if user.is_staff or user.is_superuser %}
     <div class="nav-section">لوحة تحكم الإدارة</div>
-    <a href="{% url 'admin_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
-      <i class="fas fa-chart-pie"></i> نظرة عامة
-    </a>
-    <a href="{% url 'admin_patients' %}" class="nav-link-side {% if 'patient' in request.resolver_match.url_name and 'secretary' not in request.resolver_match.url_name %}active{% endif %}">
-      <i class="fas fa-users"></i> سجل المرضى
-    </a>
-    <a href="{% url 'admin_appointments' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_appointments' %}active{% endif %}">
-      <i class="fas fa-calendar-alt"></i> إدارة المواعيد
-    </a>
-    <a href="{% url 'admin_doctors' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_doctors' %}active{% endif %}">
-      <i class="fas fa-user-md"></i> الطاقم الطبي
-    </a>
-    <a href="{% url 'admin_secretaries' %}" class="nav-link-side {% if 'admin_secreta' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="fas fa-headset"></i> طاقم السكرتاريا
-    </a>
-    <a href="{% url 'admin_records' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_records' %}active{% endif %}">
-      <i class="fas fa-notes-medical"></i> الأرشيف الطبي
-    </a>
-    <div class="nav-section" style="margin-top:10px;">السكرتاريا</div>
-    <a href="{% url 'secretary_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_dashboard' %}active{% endif %}">
-      <i class="fas fa-desktop"></i> لوحة السكرتيرة
-    </a>
+    <a href="{% url 'admin_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-chart-pie"></i> نظرة عامة</a>
+    <a href="{% url 'admin_patients' %}" class="nav-link-side {% if 'patient' in request.resolver_match.url_name and 'secretary' not in request.resolver_match.url_name %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-users"></i> سجل المرضى</a>
+    <a href="{% url 'admin_appointments' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_appointments' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-calendar-alt"></i> إدارة المواعيد</a>
+    <a href="{% url 'admin_doctors' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_doctors' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-user-md"></i> الطاقم الطبي</a>
+    <a href="{% url 'admin_secretaries' %}" class="nav-link-side {% if 'admin_secreta' in request.resolver_match.url_name %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-headset"></i> طاقم السكرتاريا</a>
+    <a href="{% url 'admin_records' %}" class="nav-link-side {% if request.resolver_match.url_name == 'admin_records' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-notes-medical"></i> الأرشيف الطبي</a>
+    <div class="nav-section" style="margin-top:8px;">السكرتاريا</div>
+    <a href="{% url 'secretary_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_dashboard' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-desktop"></i> لوحة السكرتيرة</a>
     {% elif user|has_group:'secretary' %}
     <div class="nav-section">بوابة السكرتيرة</div>
-    <a href="{% url 'secretary_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_dashboard' %}active{% endif %}">
-      <i class="fas fa-tachometer-alt"></i> الرئيسية
-    </a>
-    <a href="{% url 'secretary_patients' %}" class="nav-link-side {% if 'secretary_patient' in request.resolver_match.url_name %}active{% endif %}">
-      <i class="fas fa-users"></i> سجل المرضى
-    </a>
-    <a href="{% url 'secretary_appointments' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_appointments' %}active{% endif %}">
-      <i class="fas fa-calendar-alt"></i> إدارة المواعيد
-    </a>
-    <a href="{% url 'secretary_appointment_add' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_appointment_add' %}active{% endif %}">
-      <i class="fas fa-calendar-plus"></i> حجز موعد جديد
-    </a>
-    <a href="{% url 'secretary_doctors' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_doctors' %}active{% endif %}">
-      <i class="fas fa-user-md"></i> قائمة الأطباء
-    </a>
+    <a href="{% url 'secretary_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_dashboard' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-tachometer-alt"></i> الرئيسية</a>
+    <a href="{% url 'secretary_patients' %}" class="nav-link-side {% if 'secretary_patient' in request.resolver_match.url_name %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-users"></i> سجل المرضى</a>
+    <a href="{% url 'secretary_appointments' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_appointments' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-calendar-alt"></i> إدارة المواعيد</a>
+    <a href="{% url 'secretary_appointment_add' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_appointment_add' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-calendar-plus"></i> حجز موعد جديد</a>
+    <a href="{% url 'secretary_doctors' %}" class="nav-link-side {% if request.resolver_match.url_name == 'secretary_doctors' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-user-md"></i> قائمة الأطباء</a>
     {% else %}
     <div class="nav-section">بوابة الطبيب</div>
-    <a href="{% url 'doctor_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}">
-      <i class="fas fa-clinic-medical"></i> العيادة اليوم
-    </a>
-    <a href="{% url 'doctor_appointments' %}" class="nav-link-side {% if request.resolver_match.url_name == 'doctor_appointments' %}active{% endif %}">
-      <i class="fas fa-calendar-check"></i> جدول مواعيدي
-    </a>
-    <a href="{% url 'doctor_sessions_history' %}" class="nav-link-side {% if request.resolver_match.url_name == 'doctor_sessions_history' %}active{% endif %}">
-      <i class="fas fa-hands-helping"></i> الجلسات التي قمت بها
-    </a>
+    <a href="{% url 'doctor_dashboard' %}" class="nav-link-side {% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-clinic-medical"></i> العيادة اليوم</a>
+    <a href="{% url 'doctor_appointments' %}" class="nav-link-side {% if request.resolver_match.url_name == 'doctor_appointments' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-calendar-check"></i> جدول مواعيدي</a>
+    <a href="{% url 'doctor_sessions_history' %}" class="nav-link-side {% if request.resolver_match.url_name == 'doctor_sessions_history' %}active{% endif %}" onclick="closeSidebar()"><i class="fas fa-hands-helping"></i> الجلسات التي قمت بها</a>
     {% endif %}
-    
-    <div class="mt-4 border-top border-secondary pt-3" style="opacity: 0.3; margin: 0 20px;"></div>
-    
-    <a href="{% url 'logout' %}" class="nav-link-side mt-2" style="color:#ff6b6b;">
-      <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
-    </a>
+    <div class="mt-3 border-top border-secondary pt-2" style="opacity:.3; margin: 0 16px;"></div>
+    <a href="{% url 'logout' %}" class="nav-link-side mt-1" style="color:#ff6b6b;" onclick="closeSidebar()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a>
   </div>
 </div>
 
 <div class="main-content">
   <div class="topbar">
-    <h5>{% block page_title %}{% endblock %}</h5>
+    <div class="d-flex align-items-center gap-2">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="القائمة"><i class="fas fa-bars"></i></button>
+      <h5>{% block page_title %}{% endblock %}</h5>
+    </div>
     <div class="d-flex align-items-center gap-3">
-      <div class="text-end">
-        <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ user.get_full_name|default:user.username }}</div>
-        {% if user.is_staff %}
-        <span class="badge bg-danger" style="font-size: 0.7rem;">مسؤول النظام</span>
-        {% elif user|has_group:"secretary" %}
-        <span class="badge bg-success" style="font-size: 0.7rem;">سكرتيرة</span>
-        {% else %}
-        <span class="badge bg-primary" style="font-size: 0.7rem;">طبيب</span>
-        {% endif %}
-      </div>
-      <div class="rounded-circle bg-light d-flex justify-content-center align-items-center border border-2 border-danger" style="width: 45px; height: 45px;">
-        <i class="fas fa-user text-danger fs-5"></i>
+      <button class="theme-toggle" onclick="toggleTheme()" title="تبديل الوضع" aria-label="تبديل الوضع الليلي">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+      <div class="text-end d-none d-sm-block">
+        <div class="fw-bold" style="font-size:.85rem;">{{ user.get_full_name|default:user.username }}</div>
+        {% if user.is_staff %}<span class="badge bg-danger" style="font-size:.65rem;">مسؤول النظام</span>
+        {% elif user|has_group:"secretary" %}<span class="badge bg-success" style="font-size:.65rem;">سكرتيرة</span>
+        {% else %}<span class="badge bg-primary" style="font-size:.65rem;">طبيب</span>{% endif %}
       </div>
     </div>
   </div>
-  
   <div class="content-area">
     {% if messages %}
       {% for msg in messages %}
@@ -321,14 +224,39 @@
       </div>
       {% endfor %}
     {% endif %}
-    
     {% block content %}{% endblock %}
   </div>
 </div>
 {% else %}
 {% block full_content %}{% endblock %}
 {% endif %}
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Dark mode
+function getTheme(){ return localStorage.getItem('clinic-theme') || 'light'; }
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const icon = document.getElementById('themeIcon');
+  if(icon) icon.className = t === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+function toggleTheme(){
+  const t = getTheme() === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('clinic-theme', t);
+  applyTheme(t);
+}
+applyTheme(getTheme());
+
+// Mobile sidebar
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

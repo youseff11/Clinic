@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- صندوق البحث والفلترة -->
-<div class="card shadow-sm border-0 mb-4 bg-white">
+<div class="card shadow-sm border-0 mb-4 bg-body-secondary">
   <div class="card-body p-3">
     <form class="row g-2 align-items-center" method="get">
       <div class="col-md-5">
@@ -35,7 +35,7 @@
 <div class="card shadow-sm border-0 h-100">
   <div class="card-header text-white d-flex justify-content-between align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
     <span class="fw-bold"><i class="fas fa-calendar-check me-2"></i>قائمة المواعيد الشاملة</span>
-    <a href="{% url 'admin_appointment_add' %}" class="btn btn-sm btn-light text-dark fw-bold shadow-sm rounded-pill px-3">
+    <a href="{% url 'admin_appointment_add' %}" class="btn btn-sm btn-light text-body fw-bold shadow-sm rounded-pill px-3">
       <i class="fas fa-plus me-1"></i>إضافة موعد
     </a>
   </div>
@@ -59,7 +59,7 @@
           <tr>
             <td><span class="badge bg-dark">#{{ appt.patient.patient_number }}</span></td>
             <td>
-              <a href="{% url 'admin_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-dark">
+              <a href="{% url 'admin_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-body">
                 {{ appt.patient.name }}
               </a>
             </td>
@@ -131,4 +131,5 @@
     </div>
   </div>
 </div>
+{% include "includes/pagination.html" with page_obj=appointments %}
 {% endblock %}

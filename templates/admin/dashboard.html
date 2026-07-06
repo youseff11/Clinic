@@ -5,7 +5,7 @@
 {% block content %}
 <div class="row g-3 mb-4">
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-info shadow-sm bg-white p-3 rounded h-100">
+    <div class="stat-card border-start border-4 border-info shadow-sm bg-body-secondary p-3 rounded h-100">
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <div class="stat-num fs-3 fw-bold text-info">{{ stats.total_patients }}</div>
@@ -16,7 +16,7 @@
     </div>
   </div>
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-primary shadow-sm bg-white p-3 rounded h-100">
+    <div class="stat-card border-start border-4 border-primary shadow-sm bg-body-secondary p-3 rounded h-100">
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <div class="stat-num fs-3 fw-bold text-primary">{{ stats.total_doctors }}</div>
@@ -27,7 +27,7 @@
     </div>
   </div>
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-success shadow-sm bg-white p-3 rounded h-100">
+    <div class="stat-card border-start border-4 border-success shadow-sm bg-body-secondary p-3 rounded h-100">
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <div class="stat-num fs-3 fw-bold text-success">{{ stats.today_appointments }}</div>
@@ -38,7 +38,7 @@
     </div>
   </div>
   <div class="col-md-3">
-    <div class="stat-card border-start border-4 border-warning shadow-sm bg-white p-3 rounded h-100">
+    <div class="stat-card border-start border-4 border-warning shadow-sm bg-body-secondary p-3 rounded h-100">
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <div class="stat-num fs-3 fw-bold text-warning">{{ stats.pending }}</div>
@@ -55,7 +55,7 @@
     <div class="card shadow-sm border-0 h-100">
       <div class="card-header text-white d-flex justify-content-between align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
         <span class="fw-bold"><i class="fas fa-calendar-check me-2"></i>مواعيد اليوم</span>
-        <a href="{% url 'admin_appointment_add' %}" class="btn btn-sm btn-light text-dark fw-bold shadow-sm rounded-pill px-3">
+        <a href="{% url 'admin_appointment_add' %}" class="btn btn-sm btn-light text-body fw-bold shadow-sm rounded-pill px-3">
           <i class="fas fa-plus me-1"></i>إضافة موعد
         </a>
       </div>
@@ -79,10 +79,10 @@
               <tr>
                 
                 <td class="text-nowrap text-start px-3">
-                  <a href="{% url 'admin_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-dark d-block mb-1">
+                  <a href="{% url 'admin_patient_detail' appt.patient.pk %}" class="text-decoration-none fw-bold text-body d-block mb-1">
                     {{ appt.patient.name }}
                   </a>
-                  <span class="badge bg-light text-dark border border-secondary-subtle">رقم: #{{ appt.patient.patient_number }}</span>
+                  <span class="badge bg-light text-body border border-secondary-subtle">رقم: #{{ appt.patient.patient_number }}</span>
                 </td>
                 
                 <td class="text-nowrap">
@@ -159,7 +159,7 @@
     <div class="card shadow-sm border-0 h-100">
       <div class="card-header text-white d-flex justify-content-between align-items-center py-3" style="background: linear-gradient(135deg, #8B0000, #5c0000);">
         <span class="fw-bold"><i class="fas fa-user-plus me-2"></i>أحدث المرضى</span>
-        <a href="{% url 'admin_patient_add' %}" class="btn btn-sm btn-light text-dark fw-bold shadow-sm rounded-circle" title="إضافة مريض جديد">
+        <a href="{% url 'admin_patient_add' %}" class="btn btn-sm btn-light text-body fw-bold shadow-sm rounded-circle" title="إضافة مريض جديد">
           <i class="fas fa-plus"></i>
         </a>
       </div>
@@ -167,8 +167,8 @@
         {% for patient in recent_patients %}
         <li class="list-group-item d-flex justify-content-between align-items-center p-3">
           <div>
-            <a href="{% url 'admin_patient_detail' patient.pk %}" class="fw-bold text-dark text-decoration-none d-block mb-1">{{ patient.name }}</a>
-            <span class="badge bg-light text-dark border">رقم: #{{ patient.patient_number }}</span>
+            <a href="{% url 'admin_patient_detail' patient.pk %}" class="fw-bold text-body text-decoration-none d-block mb-1">{{ patient.name }}</a>
+            <span class="badge bg-light text-body border">رقم: #{{ patient.patient_number }}</span>
           </div>
           <a href="{% url 'admin_patient_detail' patient.pk %}" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm">
             <i class="fas fa-eye me-1"></i>الملف
